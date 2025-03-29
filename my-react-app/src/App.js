@@ -1,92 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Header from './Header';
-import Footer from './Footer';
 import Login from './Login';
 import Dashboard from './Dashboard';
+import Header from './Header';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Verifica autenticação ao iniciar
-    checkAuth();
+    // Check if user is already logged in
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
   }, []);
 
-  const checkAuth = () => {
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    
-    if (token && savedUser) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(savedUser));
-    } else {
-      setIsAuthenticated(false);
-      setUser(null);
-    }
-  };
-
   const handleLogin = (userData) => {
-    if (!userData || !userData.token) {
-      console.error('Dados de usuário inválidos');
-      return;
-    }
-
-    // Salva os dados no localStorage
-    localStorage.setItem('token', userData.token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    
-    // Atualiza o estado
-    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData.user));
+    setUser(userData.user);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    // Limpa o estado
-    setIsAuthenticated(false);
-    setUser(null);
-    
-    // Limpa o localStorage
     localStorage.clear();
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   return (
     <Router>
-      <div style={{ paddingTop: '70px', paddingBottom: '60px' }}>
-        {isAuthenticated && (
-          <Header 
-            username={user?.name} 
-            onLogout={handleLogout}
-          />
-        )}
+      <Routes>
+        {/* Default route redirects to login if not authenticated */}
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
         
-        <Routes>
-          <Route 
-            path="/login" 
-            element={
-              !isAuthenticated 
-                ? <Login onLogin={handleLogin} />
-                : <Navigate to="/" replace />
-            } 
-          />
-          <Route 
-            path="/" 
-            element={
-              isAuthenticated 
-                ? <Dashboard />
-                : <Navigate to="/login" replace />
-            } 
-          />
-          {/* Rota para capturar qualquer URL não definida */}
-          <Route 
-            path="*" 
-            element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />} 
-          />
-        </Routes>
+        {/* Login route */}
+        <Route 
+          path="/login" 
+          element={
+            !isAuthenticated ? (
+              <Login onLogin={handleLogin} />
+            ) : (
+              <Navigate to="/dashboard" replace />
+            )
+          } 
+        />
 
-        <Footer />
-      </div>
+        {/* Protected dashboard route */}
+        <Route 
+          path="/dashboard" 
+          element={
+            isAuthenticated ? (
+              <>
+                <Header username={user?.name} onLogout={handleLogout} />
+                <Dashboard />
+              </>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+      </Routes>
     </Router>
   );
 }

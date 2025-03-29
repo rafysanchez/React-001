@@ -8,19 +8,16 @@ function Header({ username = "Usuário", onLogout }) {
 
   const handleLogout = () => {
     try {
-      // Limpa o localStorage
+      // First clear localStorage
       localStorage.clear();
-      // ou especificamente:
-      // localStorage.removeItem('token');
-      // localStorage.removeItem('user');
       
-      // Executa a função de logout do App
+      // Then call the onLogout from App component
       if (onLogout) {
         onLogout();
       }
 
-      // Redireciona para login
-      navigate('/login', { replace: true });
+      // Finally navigate to login
+      navigate('/login');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
@@ -51,7 +48,9 @@ function Header({ username = "Usuário", onLogout }) {
         <div className="d-flex align-items-center">
           <div className="me-3 d-flex align-items-center">
             <FaUser className="me-2" style={{ color: '#6d4c41' }} />
-            <span style={{ color: '#6d4c41' }}>{username}</span>
+            <span style={{ color: '#6d4c41' }}>
+              {username || 'Usuário'} {/* Add fallback value */}
+            </span>
           </div>
           <Button 
             variant="outline-primary" 
@@ -62,7 +61,7 @@ function Header({ username = "Usuário", onLogout }) {
               color: '#6d4c41',
               backgroundColor: 'transparent'
             }}
-            onClick={handleLogout}
+            onClick={handleLogout}  // Make sure this is properly bound
           >
             <FaSignOutAlt className="me-2" />
             Sair
