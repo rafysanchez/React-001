@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, Card, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 function Login({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -8,23 +9,36 @@ function Login({ onLogin }) {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Mock login success
       const mockUserData = {
         token: 'fake-token-123',
         user: {
-          name: formData.username, // Make sure username is being passed
+          name: formData.username,
           id: 1
         }
       };
 
+      // Store token in localStorage
+      localStorage.setItem('token', mockUserData.token);
+      localStorage.setItem('user', JSON.stringify(mockUserData.user));
+
+      // Call the onLogin prop
       onLogin(mockUserData);
+
+      // Navigate to dashboard
+      console.log('Login successful:', mockUserData);
+      navigate('/dashboard');
     } catch (err) {
       setError('Erro ao fazer login. Verifique suas credenciais.');
     } finally {

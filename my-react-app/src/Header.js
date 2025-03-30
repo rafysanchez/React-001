@@ -45,13 +45,14 @@ function Header({ username = "Usuário", onLogout }) {
           <Navbar.Brand href="#home" style={{ color: '#6d4c41' }}>Sistema Empresarial</Navbar.Brand>
         </div>
         
+        <div className="me-3 d-flex align-items-center">
+          <FaUser className="me-2" style={{ color: '#6d4c41' }} />
+          <span style={{ color: '#6d4c41' }}>
+            {username}
+          </span>
+        </div>
+        
         <div className="d-flex align-items-center">
-          <div className="me-3 d-flex align-items-center">
-            <FaUser className="me-2" style={{ color: '#6d4c41' }} />
-            <span style={{ color: '#6d4c41' }}>
-              {username || 'Usuário'} {/* Add fallback value */}
-            </span>
-          </div>
           <Button 
             variant="outline-primary" 
             size="sm"
@@ -61,7 +62,7 @@ function Header({ username = "Usuário", onLogout }) {
               color: '#6d4c41',
               backgroundColor: 'transparent'
             }}
-            onClick={handleLogout}  // Make sure this is properly bound
+            onClick={handleLogout}
           >
             <FaSignOutAlt className="me-2" />
             Sair

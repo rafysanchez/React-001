@@ -4,10 +4,10 @@ import Main from './Main';
 import Footer from './Footer';
 import { Container } from 'react-bootstrap';
 
-function Dashboard() {
+function Dashboard({ username, onLogout }) {
   return (
     <Container>
-      <Header />
+      <Header username={username} onLogout={onLogout} />
       <Main />
       <Footer />
     </Container>

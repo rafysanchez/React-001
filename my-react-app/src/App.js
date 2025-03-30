@@ -1,75 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './Login';
 import Dashboard from './Dashboard';
-import Header from './Header';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
-    // Check if user is already logged in
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userData = JSON.parse(user);
+      setUsername(userData.name);
       setIsAuthenticated(true);
     }
   }, []);
 
   const handleLogin = (userData) => {
-    localStorage.setItem('user', JSON.stringify(userData.user));
-    setUser(userData.user);
+    setUsername(userData.user.name);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    localStorage.clear();
-    setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setIsAuthenticated(false);
+    setUsername('');
   };
 
   return (
     <Router>
       <Routes>
-        {/* Default route redirects to login if not authenticated */}
-        <Route 
-          path="/" 
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          } 
-        />
-        
-        {/* Login route */}
         <Route 
           path="/login" 
-          element={
-            !isAuthenticated ? (
-              <Login onLogin={handleLogin} />
-            ) : (
-              <Navigate to="/dashboard" replace />
-            )
-          } 
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />} 
         />
-
-        {/* Protected dashboard route */}
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             isAuthenticated ? (
-              <>
-                <Header username={user?.name} onLogout={handleLogout} />
-                <Dashboard />
-              </>
+              <Dashboard username={username} onLogout={handleLogout} />
             ) : (
-              <Navigate to="/login" replace />
+              <Navigate to="/login" />
             )
-          } 
+          }
         />
+        <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
   );
